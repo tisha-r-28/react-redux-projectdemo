@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 function TodoInput(props) {
-    const { formData, setFormData, todos, setTodos } = props;
+    const { formData, setFormData, todos, setTodos, isChecked, setSort, sort } = props;
 
-    const [error, setError] = useState({})
+    const [error, setError] = useState({});
 
     const handleChange = (e) => {
         try {
@@ -35,7 +35,10 @@ function TodoInput(props) {
                 return;
             }
 
+            formData.complete = isChecked === 'on';
+
             todos.push(formData);
+
             setTodos(todos);
 
             localStorage.setItem('todos', JSON.stringify(todos));
@@ -44,9 +47,34 @@ function TodoInput(props) {
                 title: '',
                 description: ''
             })
+            localStorage.setItem('sort', JSON.stringify(sort));
 
         } catch (error) {
             console.log(error.message, 'isit');
+        }
+    }
+
+    const handleSort = (e) => {
+        const value = e.target.value;
+        setSort(value);
+        console.log(sort, "start");
+
+        if(sort === 'completed'){
+            const completeTodos = todos.filter((todo) => {
+                return todo.complete === true;
+            })
+            localStorage.setItem('completedTodos', JSON.stringify(completeTodos));
+        }
+        else if(sort === 'notCompleted'){
+            const notCompleteTodos = todos.filter((todo) => {
+                return todo.complete === false;
+            })
+            
+            localStorage.setItem('notCompleteTodos', JSON.stringify(notCompleteTodos));
+        }
+        else if(sort === 'all'){
+            console.log(sort, "all");
+            return todos;
         }
     }
 
@@ -54,7 +82,7 @@ function TodoInput(props) {
         <>
             <div className="container-fluid">
                 <div className="row d-flex justify-content-center">
-                    <div className="col-6">
+                    <div className="col-5">
                         <h1 className='mt-3'>Add To-Do</h1>
                         <form className='mt-4' onSubmit={(e) => handleTodos(e)}>
                             <div className="mb-3">
@@ -69,6 +97,14 @@ function TodoInput(props) {
                             </div>
                             <button type="submit" className="btn btn-primary">Add</button>
                         </form>
+                    </div>
+                    <div className="col-2">
+                        <select name="sorting" id="sorting" className='mt-3' onClick={(e) => handleSort(e)}>
+                            <option value=''>Sort</option>
+                            <option value="completed">Completed</option>
+                            <option value="notCompleted">Not Completed</option>
+                            <option value="all">All</option>
+                        </select>
                     </div>
                 </div>
             </div>
